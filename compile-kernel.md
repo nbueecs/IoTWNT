@@ -17,20 +17,20 @@ $ sudo apt-get install git fakeroot build-essential ncurses-dev xz-utils libssl-
 </pre></code>
 + <strong>Compile Kernel</strong>: Download kernel source code using the following command:
 <pre><code>
-\$ git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
-\$ git checkout v4.7.2
+$ git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
+$ git checkout v4.7.2
 </pre></code>
 and then compile kernel as following:
 <pre><code>
-\$ cd linux-4.7.2
-\$ cp /boot/config-$(uname -r) .config
-\$ make menuconfig
-\$ make-kpkg clean
-\$ fakeroot make-kpkg  --initrd --revision jiangxianliang.001 --append-to-version -20160906 kernel_image kernel_headers
+$ cd linux-4.7.2
+$ cp /boot/config-$(uname -r) .config
+$ make menuconfig
+$ make-kpkg clean
+$ fakeroot make-kpkg  --initrd --revision jiangxianliang.001 --append-to-version -20160906 kernel_image kernel_headers
 </pre></code>
 To speed up the compile process pass the -j option (-j 16 means you are using all 16 cores to compile the Linux kernel):
 <pre><code>
-\$ fakeroot make-kpkg  --initrd --revision jiangxianliang.001 --append-to-version -20160906 kernel_image kernel_headers -j 16
+$ fakeroot make-kpkg  --initrd --revision jiangxianliang.001 --append-to-version -20160906 kernel_image kernel_headers -j 16
 </pre></code>
 <ul>
 	<li>--initrd : Create an initrd image.</li>
@@ -41,12 +41,12 @@ To speed up the compile process pass the -j option (-j 16 means you are using al
 </ul>
 Verify kernel deb files:
 <pre><code>
-\$ ls  ../*.deb
+$ ls  ../*.deb
 </pre></code>
 + <strong>Installing a Custom Kernel</strong>: Type the following dpkg command to install a custom kernel on your system:
 <pre><code>
-\$ sudo dpkg -i linux-headers-4.7.2-20160906_jiangxianliang.001_amd64.deb
-\$ sudo dpkg -i linux-image-4.7.2-20160906_jiangxianliang.001_amd64.deb
+$ sudo dpkg -i linux-headers-4.7.2-20160906_jiangxianliang.001_amd64.deb
+$ sudo dpkg -i linux-image-4.7.2-20160906_jiangxianliang.001_amd64.deb
 </pre></code>
 Reboot and verify the new kernel. 
 
