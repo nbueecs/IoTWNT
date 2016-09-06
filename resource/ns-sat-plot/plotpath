@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# > overwrites old file; >> cocatenates.
+
+cat coordinate_system.fig > temp_path.fig
+
+# force scale to match that of coordinate system
+perl plot_path.pl $* -scale 30 >> temp_path.fig
+
+xfig temp_path.fig &

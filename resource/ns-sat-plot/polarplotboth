@@ -1,0 +1,17 @@
+#!/bin/sh
+
+cat polar_coordinate_system.fig > temp_polar_both.fig
+
+# note satellites plotted first so path comes out on top!
+# (should really fix levels in scripts)
+
+# -file sats.dump at end overrides any provided -file,
+# allowing -file to be set for plot_path.
+
+perl polar_plot_sats.pl $* -file sats.dump >> temp_polar_both.fig
+
+# -nomap prevents background map from being included twice
+
+perl polar_plot_path.pl $* -nomap  >> temp_polar_both.fig
+
+xfig temp_polar_both.fig &

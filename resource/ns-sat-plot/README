@@ -1,0 +1,384 @@
+Scripts for plotting satellite topologies and paths from ns trace files
+-----------------------------------------------------------------------
+for use with the network simulator ns, 2.1b6a and later.
+Release 1.1.3, 11 August 2000.
+
+Distinguishing satellites/terminals and ISL/GSL types requires
+an ns-version more recent than 21 June 2000.
+
+
+Authors:
+--------
+- Original scripts written by Tom Henderson, Daedalus Group,
+  University of California at Berkeley, June 1999 (tomh@tomh.org).
+
+- Enhanced (functionality, switches, map options, polar plots)
+  by Lloyd Wood, Centre for Communication Systems Research,
+  University of Surrey, June 2000 (L.Wood@surrey.ac.uk).  
+
+  http://www.ee.surrey.ac.uk/Personal/L.Wood/ns/sat-plot-scripts/
+
+
+Summary for the expert:
+----------------------
+
+demo
+
+
+Summary for people who never read documentation:
+-----------------------------------------------
+Try these to show what plotsats can do:
+
+plotsats -map 1 -links -plane -alpha 24 -file sats.dump
+plotsats -map 2.gif -links -plane
+plotsats -map 3 -links -plane -nonum
+plotsats -map 4 -nonum
+
+plotpath -hopcount -map 3 -file plot.tr
+plotpath -map 2 -links
+
+help is provided by
+plot_sats.pl -help
+plot_path.pl -help
+
+Summary:
+-------
+These scripts can be used to visualize ns satellite constellation 
+configurations, both an overall snapshot of the satellite positions at
+a given time and the path that a packet takes through the network.
+
+These scripts supplement the ns satellite networking code available at
+http://www.isi.edu/nsnam/ns/
+
+
+-----------------------------------------------------------------------
+Files included
+
+README - this file 
+
+coordinate_system.fig - latitude/longitude marks and frame for xfig
+preamble.fig          - necessary before any xfig drawing commands
+
+plot.tr		- sample packet trace for plotpath
+sats.dump	- sample topology dump for plotsats
+
+plotsats  - plot the position of a constellation from dump_sats
+plotpath  - plot the path taken by a packet in a tracefile
+plotboth  - combines both the above.
+
+plot_sats.pl and plot_path.pl - perl scripts that do all the work
+				by writing a series of xfig commands.
+
+1.gif, 2.gif, 3.gif, 4.gif - various background maps.
+(note that these maps are unprojected, where latitude and longitude
+ are scaled linearly according to value. Replacing with e.g. Mercator
+ projections requires altering both the perl code and the gridlines
+ in coordinate_system.fig to match.)
+ 
+
+Also included for polar plots described below are:
+
+polar_coordinate_system.fig - frame for azimuthal equidistant plot
+
+polarplotsats, polarplotpath, polarplotboth - as above, for az. eq.
+
+polar_plot_sats.pl and polar_plot_path.pl - really do all the work.
+
+azeq.gif - azimuthal equidistant background map graphic
+
+
+-----------------------------------------------------------------------
+Requirements
+
+You need perl 5.003 or later and xfig 3.2 or later in your path to
+run these scripts.
+
+
+-----------------------------------------------------------------------
+Commands and usage
+
+Here, the scripts generating unprojected maps will be introduced.
+Usage for the polar plot scripts is similar.
+
+Usage:
+
+1.  plotsats [<-file name> <-map name> -links <-arrows>
+		-plane <-alpha num> -nonum]
+
+Takes a dump of the positions of each satellite (from a file labelled
+"sats.dump") and prints them out as points on a projected map.
+
+This script is a wrapper for an underlying plot_sats.pl script that has
+the following usage information:
+
+	Process ns satellite dump information to plot satellite positions
+	on an unprojected map of the Earth.  Outputs xfig coordinates for
+	use with the background defined by coordinate_system.fig
+
+	Input file format expected in file "sats.dump"
+	("Links" is a keyword):
+
+	satnode    Lat(deg)   Long(deg)   type/plane no.
+	...
+	Links:
+	Lat     Long    Lat     Long
+	...
+
+	Output file format is a series of xfig objects
+
+	Options:
+		-file name:	File containing ns satellite dump.
+			 	Default filename is sats.dump
+
+		-links:		Draw links between the nodes
+				intraplane ISLs are black
+				interplane ISLs are blue
+				crossseam ISLs are red
+				ground-to-space links are green 
+
+		    -arrows:	Add per-link directed arrows,
+				showing simplex/duplex state.
+
+		-map num/name:	Include background map projection; can
+				be one of a series of beautiful
+				yet informative numbered backdrops.
+				Note that an filename or number is required;
+				any immediately-following switch will be
+				ignored silently.
+
+		-plane:		provide plane numbering of polar sats.
+
+		    -alpha num: if you know the number of satellites
+				per plane, add per-plane labelling.
+				(Not that useful for more than 26
+				 satellites or letters per plane. May
+				 require tweaking if you don't number
+				 your planes starting with 1.)
+
+		-nonum:		suppress numbering. Useful with -plane
+				to suppress terminal numbers.
+
+
+To generate the essential ns satellite dump file, you must call:
+	$ns at $time "$node dump_sats"
+in your simulation script at the time you want the satellites to be dumped,
+and record the output to a tracefile.
+
+Example:  to dump the satellites at time 1.0 from the script
+sat-teledesic.tcl, add the following line to the end of the script:
+	$ns at 1.0 "$n0 dump_sats"
+and save the standard output to a file named "sats.dump". The node used
+doesn't matter; it's just a way of accessing the dump routine.
+
+A sample sats.dump file is included, corresponding to the Teledesic
+288-active-satellite constellation (1997 Boeing design) -- try this
+command if you haven't already:
+	plotsats -links -map 3
+
+[please forgive the rendering of ISLs as a straight line on these plots;
+ mathematicians have told us it's a halfway-house that makes them cringe,
+ but it's become a common convention in academic papers that discuss
+ satellite constellation networks.
+ ISLs represent connectivity, _not_ path taken from line of sight.
+
+ Excuse #1:	if we drew the intraplane ISLs properly they'd follow the
+		great-circle curve of the orbit and you'd be unable to
+		distinguish them easily. That orbit curve is of the form:
+			atan(tan (inclination)*sin(longitude+Omega))
+		neglecting Earth rotation (i.e. it's not the groundtrack
+		over time) if you're interested.
+
+ Excuse #2:	to draw other links properly we must parse orbital radii,
+		which we should be providing in tracefiles and dumps as
+		a matter of course, but aren't.
+
+ Excuse #3:	we have a headache in trying to figure out how to get
+		xfig to draw the resulting curves correctly.
+		Curves on polar plots were less of a headache, but
+		require much the same excuses.]
+
+
+
+2.  plotpath [<-file name> <-map name> -links <-arrows> -hopcount -packet n]
+
+Takes a dump of the positions of each satellite along a packet's path from
+an ns satellite tracefile, and prints them out as points on a projected map.
+(This was known as plotroute in earlier incarnations.)
+
+This script is a wrapper for an underlying plot_path.pl script that has
+the following usage information:
+
+	Process ns satellite traces to plot packet path on a map.
+	Outputs xfig coordinates for use with the background defined by
+	coordinate_system.fig
+
+	Options:
+	   as before:
+		-file name:	Tracefile to load in; default is plot.tr
+		-links:		Place links between the nodes
+		-map num:	Background map projection as earlier
+	   new:
+		-hopcount:	Label satellite by hop no., not node no.
+		-packet n:	Print only the packet number n
+
+
+A sample plot.tr file is included (normally a symbolic link to your script's
+out.tr file is convenient) -- try:
+	plotpath -packet 2 
+to see the path taken by the packet numbered "2" in the tracefile.
+(The packet number is the number in the tenth column of the tracefile.)
+
+The source and destination terminal locations are printed as "S" and "D",
+respectively.  Normally, the satellite node number is printed out as the label
+of the satellite, but using the "-hopcount" option numbers the satellites
+by hopcount.
+
+
+
+3.  plotboth [<-file name> <-map name> -links <-arrows> -hopcount -packet n]
+
+Similar to plotpath, but if there is a sats.dump file present, will add
+the locations of all of the satellites to the selected packet drawn from the
+tracefile specified in -file.  Helpful to see how well your routing
+protocol is working.  The options apply to the plot_path portion of the
+script.
+
+(As you'll see by running this on the examples provided, the provided
+ trace and dump were generated at different times.)
+
+
+
+Additional options supported by the perl scripts, but not immediately useful:
+
+-scale:	will let you vary the number of xfig units to the degree.
+	This is fixed in the unprojected-map wrapper scripts at
+	30 units/degree to match the provided coordinate system,
+	which is currently static.
+
+-nomap: this overrides -map and prevents a background map from
+	appearing. Useful when combining packet paths with topologies.
+
+Note that the perl scripts output xfig commands, not a valid xfig file.
+The preamble (preamble.fig) would be a minimum that is required first:
+
+cat preamble.fig > example.fig
+plot_sats -scale 50 -map >> example.fig
+
+
+-----------------------------------------------------------------------
+Additional notes for the polar plots
+
+The actual projection is azimuthal equidistant centred on the North Pole.
+This is described on e.g.:
+http://www-ias.jpl.nasa.gov/Model/Plato/map/map_desc/azi.equidistant.html
+http://www.aquarius.geomar.de/omc/omc_project.html
+
+Use:
+Generally as described for the unprojected maps.
+Note that there's no -arrow option; considered too difficult to implement.
+(See comments in code for further details.)
+The -map option does not take a filename for selection of maps at present,
+since only one background map is provided.
+(In non-polar plots an option is mandatory.)
+
+Try e.g.
+
+polarplotsats -links -map -plane -alpha 24
+polarplotpath -packet 2 -file plot.tr
+polarplotboth
+
+as previously described in the README.
+
+
+Advantages of this projection:
+-----------------------------
+
+You can really see why star and rosette constellations are so called.
+
+Links don't go over the edge of the map. There is no edge; the
+outer circle is the point that is the south pole, just as the top and bottom
+edges of a 'normal' earth map are the poles.
+
+
+Disadvantages of this projection:
+--------------------------------
+
+This projection has some drawbacks, however.
+
+As you can see from Teledesic, links really ought to go over the
+edge of the south pole if the longitudes of the satellites are sufficiently
+far apart (>85 degrees) -- but then it's not obvious what they connect, so you
+should repeat drawing nodes and numbers beyond the edge, and since the
+links are unlikely to be passing directly over the south pole, this becomes
+a fib.
+
+It would be useful to extend this projection to choose any point on the sphere
+to be the centre point, to allow looking at local connectivity, and to utilize
+one of the many programs available that can plot az. eq. maps based around any
+chosen point other than the pole.
+
+(Modifying this to give a single-hemisphere plot cut at the equator is
+ left as an exercise for the reader, as is implementing a non-linear
+ latitude in order to better inspect activity at the north pole.)
+
+
+-----------------------------------------------------------------------
+Revision history
+
+1.1.3, 11 August 2000
+- fixed -help documentation in this README.
+
+1.1.2, 10 August 2000
+- cleaned up nonum/plane logic to improve backward compatibility.
+
+1.1.1, 8 August 2000
+- added missing $ to opt{'nonum'} test in plot_sats.pl.
+
+1.1, 6 August 2000
+- improved perl script coding for -w compliance.
+- tidied up polar coordinates axes.
+
+1.0, 23 June 2000
+- first release with polar scripts from Lloyd.
+
+
+-----------------------------------------------------------------------
+Possible future improvements?
+
+Drawing:
+- addressing disadvantages of polar projection described above.
+- reading data into arrays parsed for duplicates, to
+  decrease number of lines drawn when -arrows is not selected.
+- allowing rotation of the background graphic.
+- flexible scaling of the coordinate grids currently in xfig files.
+
+Program specifics:
+- better getopt code for more flexible switches (better -map, no
+  need for -file etc.)
+- combine sats/path functionality in a single, flexible, perl script?
+- work on path skipping-tracefile-line assumptions for robustness.
+
+
+-----------------------------------------------------------------------
+Acknowledgements
+
+Thanks to Giao Nguyen of Daedalus research project for contributing template 
+perl scripts.
+
+- Map #1 distilled from Xerox Parc Map Viewer (http://mapweb.parc.xerox.com/)
+- Maps #2-3 are samples from Living Earth (http://www.livingearth.com/)
+- Map #4 courtesy of Lloyd Wood. Generate more useful maps with the
+  footprint generator (http://www.ee.surrey.ac.uk/Personal/L.Wood/footprint/)
+
+Polar map rendered by Hans Havlicek (http://www.geometrie.tuwien.ac.at/karto/)
+
+
+-----------------------------------------------------------------------
+Restrictions
+
+Perl scripts are subject to UC Copyright as noted in the scripts.  
+
+
+----
+Lloyd Wood
+August 2000.

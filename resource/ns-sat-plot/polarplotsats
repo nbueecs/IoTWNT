@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cat polar_coordinate_system.fig > temp_polar_sats.fig
+
+perl polar_plot_sats.pl $* >> temp_polar_sats.fig
+
+xfig temp_polar_sats.fig &

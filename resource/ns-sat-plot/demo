@@ -1,0 +1,3 @@
+#!/bin/sh
+polarplotboth -map -links -hopcount -plane -alpha 24 &
+plotboth -map 4 -links -arrows -plane -alpha 24 -hopcount

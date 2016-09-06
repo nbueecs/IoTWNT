@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# > overwrites old file; >> cocatenates.
+
+# note order is important so path comes out on top!
+# (should really fix levels in scripts)
+
+cat coordinate_system.fig > temp_both.fig
+
+# -file sats.dump at end overrides any provided -file,
+# allowing -file to be set for plot_path.
+
+perl plot_sats.pl $* -file sats.dump -scale 30 >> temp_both.fig
+
+# -nomap prevents map from being included twice
+
+perl plot_path.pl -nomap $* -scale 30  >> temp_both.fig
+
+xfig temp_both.fig &
