@@ -1,10 +1,19 @@
 <h2 align = "center">物联网与无线网络实验资源</h2>
 
-<h3>NS2真实流量仿真：基于SUMO, Open Street</h3>
+<h3>Contiki安装和使用(Ubuntu14.04)</h3>
+假设已经安装好系统，可以是虚拟机，也可以是物理机，具体安装过程如下：
 
++ 1.安装依赖工具，具体命令：$sudo apt-get install build-essential binutils-msp430 gcc-msp430 msp430-libc binutils-avr gcc-avr gdb-avr avr-libc avrdude openjdk-7-jdk openjdk-7-jre ant libncurses5-dev git
++ 2.下载Contiki源代码，具体命令：$git clone https://github.com/contiki-os/contiki.git
++ 3.源码下载完成后，进入Contiki目录，执行：$git submodule update --init
++ 4.进入：examples/hello-world/ 目录，命令：$cd examples/hello-world/
++ 5.编译hello-world程序，命令：$make TARGET=native hello-world
++ 6.运行测试编译结果(前提5没有错误)，命令：$./hello-world.native，如果没有错误并出现Hello world则表示安装成功。
++ 7.进入：tools/cooja 目录，命令：cd ../../tools/cooja，执行：$ant run，即运行cooja仿真器，具体如何配置可参考[Cooja Simulator](http://anrg.usc.edu/contiki/index.php/Cooja_Simulator)
+
+<h3>NS2真实流量仿真：基于SUMO, Open Street</h3>
 该实验的大致过程：从Open Street中导出地图，格式：*.osm.xml；用SUMO中的脚本经过许多步骤将上述的地图转为NS2可读取的移动场景；编写NS2实验脚本，导入上述得到的移动场景，进行实验。需要注意，在编写实验脚本时，需要主要(x, y)的坐标值和总的节点数。详细过程如下：
 
-=======
 + <strong>环境要求</strong>：安装SUMO和NS2。其中，NS2安装不再赘述，请参考我们的教材。对于SUMO，Ubuntu系统的在线安装命令为：
 <pre><code>
 $sudo add-apt-repository pap:sumo/stable
